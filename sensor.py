@@ -135,9 +135,15 @@ def classify_value(value: float, limits: dict) -> str:
         >>> classify_value(35.0, grenzen)
         'kritisch'
     """
-    # TODO: Implementierung hier einfügen
+    if value <= limits["niedrig"]:
+        return "niedrig"
+    elif value <= limits["normal"]:
+        return "normal"
+    elif value <= limits["hoch"]:
+        return "hoch"
+    else:
+        return "kritisch"
     pass
-
 
 def filter_by_sensor(data: list[dict], sensor_id: str) -> list[dict]:
     """Filtert die Messdaten nach einer bestimmten Sensor-ID.
@@ -156,9 +162,8 @@ def filter_by_sensor(data: list[dict], sensor_id: str) -> list[dict]:
         >>> all(d["sensor_id"] == "S01" for d in s01)
         True
     """
-    # TODO: Implementierung hier einfügen
+    return [d for d in data if d["sensor_id"] == sensor_id]
     pass
-
 
 def generate_report(data: list[dict]) -> str:
     """Erstellt einen Textbericht aus den Messdaten.
@@ -189,6 +194,46 @@ def generate_report(data: list[dict]) -> str:
         ...
         ======================================
     """
-    # TODO: Implementierung hier einfügen
+    if not data:
+        return "Keine Daten vorhanden"
+    
+    # Extrahiere alle Messwerte
+    temps = [d["temperatur"] for d in data]
+    humidities = [d["luftfeuchtigkeit"] for d in data]
+    co2_values = [d["co2"] for d in data]
+    sensor_ids = sorted(set(d["sensor_id"] for d in data))
+    
+    # Berechne Statistiken für Temperatur
+    temp_avg = round(sum(temps) / len(temps), 2)
+    temp_min = min(temps)
+    temp_max = max(temps)
+    temp_critical = sum(1 for t in temps if t > 30)
+    
+    # Berechne Statistiken für Luftfeuchtigkeit
+    humidity_avg = round(sum(humidities) / len(humidities), 2)
+    humidity_min = min(humidities)
+    humidity_max = max(humidities)
+    
+    # Berechne Statistiken für CO2
+    co2_avg = round(sum(co2_values) / len(co2_values), 2)
+    co2_min = min(co2_values)
+    co2_max = max(co2_values)
+    
+    # Formatiere den Bericht
+    report = "========== SensorPy Bericht ==========\n"
+    report += f"Messungen total:       {len(data)}\n"
+    report += f"Sensoren:              {', '.join(sensor_ids)}\n"
+    report += "\n-- Temperatur (°C) --\n"
+    report += f"Durchschnitt:          {temp_avg}\n"
+    report += f"Min / Max:             {temp_min} / {temp_max}\n"
+    report += f"Kritische Werte (>30): {temp_critical}\n"
+    report += "\n-- Luftfeuchtigkeit (%) --\n"
+    report += f"Durchschnitt:          {humidity_avg}\n"
+    report += f"Min / Max:             {humidity_min} / {humidity_max}\n"
+    report += "\n-- CO2 (ppm) --\n"
+    report += f"Durchschnitt:          {co2_avg}\n"
+    report += f"Min / Max:             {co2_min} / {co2_max}\n"
+    report += "======================================\n"
+    
+    return report
     pass
-
